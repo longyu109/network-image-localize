@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	default-lazy-init="true">
+
+	<util:properties id="thrift" location="classpath:thrift.properties" />
+	<util:properties id="mainstay" location="classpath:mainstay.properties" />
+
+	<!-- 声音服务 -->
+	<bean id="trackPoolConfig"
+		class="com.ximalaya.mainstay.spring.config.ConnectionPoolConfig">
+		<property name="maxTotal" value="#{thrift['track.facade.pool.maxTotal']}" />
+		<property name="minIdle" value="#{thrift['track.facade.pool.minIdle']}" />
+		<property name="maxIdle" value="#{thrift['track.facade.pool.maxIdle']}" />
+		<property name="maxWaitMillis" value="#{thrift['track.facade.pool.maxWaitMillis']}" />
+		<property name="testWhileIdle" value="#{thrift['track.facade.pool.testWhileIdle']}" />
+		<property name="timeBetweenEvictionRunsMillis"
+			value="#{thrift['track.facade.pool.timeBetweenEvictionRunsMillis']}" />
+		<property name="numTestsPerEvictionRun"
+			value="#{thrift['track.facade.pool.numTestsPerEvictionRun']}" />
+		<property name="minEvictableIdleTimeMillis"
+			value="#{thrift['track.facade.pool.minEvictableIdleTimeMillis']}" />
+		<property name="softMinEvictableIdleTimeMillis"
+			value="#{thrift['track.facade.pool.softMinEvictableIdleTimeMillis']}" />
+	</bean>
+
+	<bean id="trackClientConfig" class="com.ximalaya.mainstay.spring.config.ClientConfig">
+		<property name="group" value="#{thrift['track.facade.service.group']}" />
+		<property name="isMultiplex"
+			value="#{thrift['track.facade.service.isMultiplex']}" />
+		<property name="timeout" value="#{thrift['track.facade.service.timeout']}" />
+		<property name="routingType"
+			value="#{thrift['track.facade.service.routingtype']}" />
+	</bean>
+
+	<bean id="trackMainstayConfig" class="com.ximalaya.mainstay.spring.config.MainstayConfig">
+		<property name="zkConnectString" value="#{mainstay['zk.url']}" />
+		<property name="webConsoleUrl" value="#{mainstay['web.console.url']}" />
+		<property name="zkSessionTimeoutMills" value="#{mainstay['zk.session.timeout']}"></property>
+		<property name="zkConnectionTimeoutMills" value="#{mainstay['zk.connect.timeout']}"></property>
+	</bean>
+
+	<bean id="trackClient" class="com.ximalaya.mainstay.spring.thrift.MainstayClient">
+		<property name="ifaceClass" value="#{thrift['track.facade.iface.class']}" />
+		<property name="poolConfig" ref="trackPoolConfig" />
+		<property name="mainstayConfig" ref="trackMainstayConfig" />
+		<property name="clientConfig" ref="trackClientConfig" />
+	</bean>
+
+	<bean
+		class="com.ximalaya.service.track.thrift.client.TrackFacadeServiceClient" />
+	
+   
+</beans>
+
